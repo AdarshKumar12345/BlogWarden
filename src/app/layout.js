@@ -8,7 +8,11 @@ import Navbar from "@/components/Navbar";
 import AuthProciders from "@/components/providers/AuthProviders";
 import { Toaster } from "@/components/ui/sonner"
 
-const poppins = Poppins({ subsets: ['latin'], weight: '400' })
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
+
+const poppins = Poppins({ subsets: ['latin'], weight: '400', display: 'swap' });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +33,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark">
       <body
-        className={`${poppins.className} antialiased`}
+        className={`${inter.className} antialiased`}
       >
       <AuthProciders>
        <SidebarProvider>

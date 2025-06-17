@@ -11,16 +11,19 @@ const nextConfig = {
   images: {
     domains: ['via.placeholder.com'],
       },
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-        port: '',
-        pathname: '/**',
+    images: {
+        remotePatterns: [
+          {
+            protocol: 'https',
+            hostname: 'lh3.googleusercontent.com',
+            port: '',
+          },
+          {
+            protocol: 'https',
+            hostname: 'firebasestorage.googleapis.com',
+            port: ''
+          }
+        ],
       },
-    ],
-  },
 };
-
 export default nextConfig;
