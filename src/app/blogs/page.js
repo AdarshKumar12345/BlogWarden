@@ -38,7 +38,7 @@ function BlogCard({title , discription , image , url} ) {
 return (
   <div className="w-full max-w-sm bg-gray-300/10 text-gray-50 p-4 rounded-lg hover:scale-[1.03] transition-all duration-300 flex flex-col items-center shadow-lg">
     <Image
-      className="rounded-md w-full object-cover"
+      className="w-full h-48 object-cover"
       src={image}
       alt={title}
       width={300}

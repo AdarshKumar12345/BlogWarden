@@ -2,37 +2,32 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import "react-quill/dist/quill.snow.css"; // Unused now, but kept for reference
 import { slugify } from "slugmaster";
 import ImageUpload from "./ImageUpload";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { Button } from "./ui/button";
-import ReactMarkdown from "react-markdown"; // New package for Markdown preview
-
-// AI section - commented out
-// import AIContent from "@/utils/ai-content";
-// import { Sparkles } from "lucide-react";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogDescription,
-//   DialogFooter,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-//   DialogClose
-// } from "@/components/ui/dialog";
-
-// const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import ReactMarkdown from "react-markdown";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog";
+import { Sparkles } from "lucide-react";
+import AIContent from "@/utils/ai-content"
 
 const schema = z.object({
-  title: z.string().min(10, { message: 'Title must contain 10 or more characters'}).min(1, { message: "Title must not be empty"}),
-  excerpt: z.string().min(10, { message: "Please add some details in the excerpt"}),
-  category: z.string().min(1, { message: "Please add a category"}),
+  title: z.string().min(10, { message: 'Title must contain 10 or more characters' }).min(1, { message: "Title must not be empty" }),
+  excerpt: z.string().min(10, { message: "Please add some details in the excerpt" }),
+  category: z.string().min(1, { message: "Please add a category" }),
   metaDescription: z.string().optional(),
-  keywords: z.string().min(1, { message: "Keywords should be there for SEO benefits"}),
+  keywords: z.string().min(1, { message: "Keywords should be there for SEO benefits" }),
   status: z.enum(["DRAFT", "PUBLISHED"])
 });
 
@@ -42,10 +37,8 @@ export default function Editor({ onSave, initialData }) {
   const [ogImage, setOgImage] = useState("");
   const router = useRouter();
 
-  // const [selectionExists, setSelectionExists] = useState(false);
-  // const ideaRef = useRef(null);
-  // const closeDialogRef = useRef(null);
-  const quillRef = useRef(null); // still declared for AI selection, though not used
+  const ideaRef = useRef(null);
+  const closeDialogRef = useRef(null);
 
   useEffect(() => {
     if (initialData) {
@@ -74,46 +67,6 @@ export default function Editor({ onSave, initialData }) {
     }
   };
 
-  // const handleGenerateContentUsingAI = async () => {
-  //   try {
-  //     const response = await AIContent({ text: ideaRef.current.value, customInstructions: 'Generate content with proper facts', contentGen: true })
-  //     setContent(response);
-  //   } catch (error) {
-  //     console.error(error.message);
-  //   } finally {
-  //     closeDialogRef.current?.click();
-  //   }
-  // };
-
-  // const handleRephrase = async () => {
-  //   const selection = quillRef?.current?.getEditor().getSelection();
-  //   if (selection && selection.length > 0) {
-  //     try {
-  //       const selectedText = quillRef?.current?.getEditor().getText(selection.index, selection.length);
-  //       const res = await AIContent({ text: selectedText, customInstructions: "Rewrite this text", contentGen: false });
-  //       quillRef?.current?.getEditor().deleteText(selection.index, selection.length);
-  //       quillRef?.current?.getEditor().insertText(selection.index, res);
-  //       setSelectionExists(false);
-  //     } catch (error) {
-  //       console.error(error.message);
-  //       toast({
-  //         title: "Uh oh!",
-  //         description: "Content rephrasing failed",
-  //         variant: "destructive",
-  //       });
-  //     }
-  //   } else {
-  //     toast({
-  //       title: "Please select some text to rephrase",
-  //     });
-  //   }
-  // };
-
-  // const handleSelectionChanged = () => {
-  //   const selection = quillRef?.current?.getEditor().getSelection();
-  //   setSelectionExists(selection && selection.length > 0);
-  // };
-
   return (
     <section>
       <form
@@ -123,10 +76,9 @@ export default function Editor({ onSave, initialData }) {
             await schema.parseAsync(data);
             await handleForm(data);
           } catch (error) {
-            console.error(error.message);
             if (error instanceof z.ZodError) {
-              error.errors.forEach((error) => {
-                toast({ title: "Error", description: error.message, variant: "destructive" });
+              error.errors.forEach((err) => {
+                toast({ title: "Error", description: err.message, variant: "destructive" });
               });
             }
           }
@@ -139,9 +91,67 @@ export default function Editor({ onSave, initialData }) {
           type="text"
         />
 
-        {/* Markdown Input and Live Preview */}
+        <div className="flex justify-end">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="secondary" className="flex items-center gap-2">
+                Generate with AI <Sparkles className="w-4 h-4" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Generate Blog Content</DialogTitle>
+                <DialogDescription>
+                  Enter a topic, and AI will generate markdown content for your blog.
+                </DialogDescription>
+              </DialogHeader>
+
+              <textarea
+                ref={ideaRef}
+                className="w-full mt-4 p-3 h-32 rounded bg-zinc-800 text-white outline-none resize-none"
+                placeholder="e.g. The impact of AI on climate change"
+              />
+
+              <DialogFooter className="mt-4">
+                <Button
+                  onClick={async () => {
+                    console.log("Generating content with AI...");
+                    try {
+                      const response = await AIContent({
+                        text: ideaRef.current.value,
+                        customInstructions:
+                          "Write a structured blog post using markdown. Include headings, facts, and use a professional tone.",
+                        contentGen: true,
+                      });
+                      console.log("AI Response:", response);
+                      setContent(response);
+                      toast({
+                        title: "AI Content Generated",
+                        description: "You can now edit or publish it.",
+                      });
+                      closeDialogRef.current?.click();
+                    } catch (error) {
+                      console.error("AI Content Generation Error:", error);
+                      toast({
+                        title: "Generation Failed",
+                        description: "Something went wrong while generating content.",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                >
+                  Generate
+                </Button>
+                <DialogClose asChild ref={closeDialogRef}>
+                  <Button variant="ghost">Cancel</Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <textarea 
+          <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write your markdown content here..."
@@ -153,29 +163,7 @@ export default function Editor({ onSave, initialData }) {
               <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           </div>
-
         </div>
-
-        {/* AI Content Generator - Commented */}
-        {/* 
-        <Dialog>
-          <DialogTrigger className="flex gap-2 items-center border-2 p-2 rounded">Generate content using AI <Sparkles /></DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogDescription>
-                Give a brief on the type of content you want to generate
-              </DialogDescription>
-              <textarea ref={ideaRef} className="bg-zinc-800 p-2 rounded outline-none" rows={10} />
-            </DialogHeader>
-            <DialogFooter>
-              <Button onClick={handleGenerateContentUsingAI}>Generate</Button>
-              <DialogClose asChild ref={closeDialogRef}>
-                <Button variant="ghost">Close</Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        */}
 
         <input
           {...register("excerpt")}
@@ -189,7 +177,7 @@ export default function Editor({ onSave, initialData }) {
           className="font-bold text-xl bg-zinc-600 px-3 py-2 rounded-sm outline-none w-full"
           type="text"
         />
-        <h2 className="text-xl font-bold"> SEO Data</h2>
+        <h2 className="text-xl font-bold">SEO Data</h2>
         <ImageUpload returnImage={setOgImage} preloadedImage={ogImage} />
         <input
           {...register("keywords")}
@@ -216,15 +204,6 @@ export default function Editor({ onSave, initialData }) {
           </button>
         </div>
       </form>
-
-      {/* Rewrite AI Button - Commented */}
-      {/* 
-      {selectionExists && (
-        <Button className="fixed bottom-10 right-10" onClick={handleRephrase} variant="outline">
-          Rewrite using AI <Sparkles />
-        </Button>
-      )}
-      */}
     </section>
   );
 }

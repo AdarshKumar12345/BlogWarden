@@ -1,15 +1,22 @@
 import Image from "next/image";
 import dateFormat from "@/utils/dateFormat";
 import { Calendar } from "lucide-react";
-
+import Link from "next/link";
 
 
 export default async function Page({ params }) {
-  const { slug } =await params;
-  if( !slug){
+  const { slug } = await params;
+  if (!slug) {
     return <div className="text-center text-red-500">Slug is required.</div>;
   }
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/get/${slug}`)
+  if( !res.ok) {
+    if (res.status === 404) {
+      return <div className="text-center text-red-500">Post not found.</div>;
+    } else {
+      return <div className="text-center text-red-500">You are not authorized to view this post.</div>;
+    }
+  }
 
   const post = await res.json()
   console.log(post, "post");
@@ -37,7 +44,12 @@ export default async function Page({ params }) {
 
       <div className="max-w-3xl text-sm mx-auto text-center mt-6">
         <h1 className="text-3xl font-bold text-gray-50">{post.title}</h1>
+               <Link className="flex items-center gap-2" href={`/user/${post.authorId}`}>
+          <Image className="rounded-full" src={post.author.image} width={20} height={20} alt={post.author.name} />
+           <p className="text-xs text-gray-400">{post.author.name}</p>
+        </Link>
       </div>
+
 
       <div className="max-w-3xl mx-auto p-5 sm:p-8 rounded-lg shadow-md mt-6 bg-gray-800/30">
         <div className="flex items-center mb-4 text-sm text-gray-400">

@@ -1,19 +1,20 @@
 const admin = [
-  'adarsh8507kumar@gmal.com',
+  'adarsh8507kumar@gmail.com',
   'admin@gmail.com',
   'superadmin@gmail.com'
 ];
 
 export default function isAdmin(session) {
   const user = session?.user;
-  if (!user) return false;
+  if (!user?.email) return false;
 
-  // Check if the user's email is in the admin list
+  const normalizedUserEmail = user.email.toLowerCase().trim();
+
   const isEmailAdmin = admin.some(
-    (email) => user.email.toLowerCase().trim() === email.toLowerCase().trim()
+    (email) => normalizedUserEmail === email.toLowerCase().trim()
   );
 
-  if (isEmailAdmin || user.role === 'admin') {
+  if (isEmailAdmin || user.role?.toLowerCase() === 'admin') {
     return true;
   }
 

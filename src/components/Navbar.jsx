@@ -13,6 +13,8 @@ import {
 import { getAuthSession } from "@/lib/authOptions";
 import SignOut from "./signOut";
 
+
+
 export default async function Navbar() {
   const session = await getAuthSession()
 
