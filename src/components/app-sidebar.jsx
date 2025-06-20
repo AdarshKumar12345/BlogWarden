@@ -26,20 +26,10 @@ const items = [
     icon: Inbox,
   },
   {
-    title: "calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
     title: "Search",
-    url: "#",
+    url: "/search",
     icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
+  }
 ]
 
 const adminItems = [

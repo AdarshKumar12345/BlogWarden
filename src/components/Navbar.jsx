@@ -43,11 +43,8 @@ export default async function Navbar() {
             <Link href="/blog" className="hover:text-gray-300 transition">
               Blog
             </Link>
-            <Link href="/about" className="hover:text-gray-300 transition">
-              About
-            </Link>
-            <Link href="/contact" className="hover:text-gray-300 transition">
-              Contact
+            <Link href="/search" className="hover:text-gray-300 transition">
+              Search
             </Link>
           </div>
 
